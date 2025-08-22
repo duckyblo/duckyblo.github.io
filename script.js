@@ -7,6 +7,7 @@ let jobs = [
 
 let gold = 0;
 let lastTime = performance.now();
+let activePopups = []; // For stacking popups
 
 // --- DOM Elements ---
 const jobsContainer = document.getElementById("jobs-container");
@@ -53,16 +54,27 @@ function toggleJob(job) {
   job.running = !job.running;
 }
 
-// --- Popups ---
+// --- Popups (stacking version) ---
 function showPopup(text) {
   const popup = document.createElement('div');
   popup.className = 'popup';
   popup.textContent = text;
   document.body.appendChild(popup);
+
+  // Offset for multiple popups
+  const offset = activePopups.length * 40; // 40px spacing
+  popup.style.bottom = `${20 + offset}px`;
+  activePopups.push(popup);
+
   requestAnimationFrame(() => popup.classList.add('show'));
   setTimeout(() => {
     popup.classList.remove('show');
-    setTimeout(() => popup.remove(), 500);
+    setTimeout(() => {
+      popup.remove();
+      activePopups = activePopups.filter(p => p !== popup);
+      // Recalculate offsets for remaining popups
+      activePopups.forEach((p, i) => p.style.bottom = `${20 + i*40}px`);
+    }, 500);
   }, 1500);
 }
 
@@ -103,6 +115,10 @@ function update(time) {
     const jobDiv = document.getElementById(`progress-${job.id}`).parentElement.parentElement;
     const tooltip = jobDiv.querySelector('.tooltip');
     tooltip.textContent = `Gold: ${job.goldPerRun} | XP: ${job.xp}/${job.xpNeeded} | Duration: ${(job.duration/1000).toFixed(1)}s`;
+
+    // Update job title dynamically (level display)
+    const titleEl = jobDiv.querySelector('.job-title');
+    titleEl.innerHTML = `<span>${job.emoji}</span> ${job.name} (Lv ${job.level})`;
   });
 
   goldDisplay.textContent = `Gold: ${Math.floor(gold)}`;
