@@ -8,17 +8,31 @@
 </head>
 <body>
   <div id="app">
-    <h1>🛡️ Dungeon Incremental</h1>
-    
-    <!-- Gold Counter -->
-    <div id="gold-display">
-      <span id="gold">Gold: 0</span>
-      <span id="gps">(+0 /s)</span>
-    </div>
 
-    <!-- Jobs Section -->
-    <div id="jobs-container"></div>
+    <header>
+      <h1>🛡️ Dungeon Incremental</h1>
+      <div id="gold-display">
+        <span id="gold">Gold: 0</span>
+        <span id="gps">(+0 /s)</span>
+      </div>
+    </header>
+
+
+    <main>
+
+      <div id="jobs-panel">
+        <h2>Jobs</h2>
+        <div id="jobs-container"></div>
+      </div>
+
+
+      <div id="dungeon-panel">
+        <h2>🏰 Dungeon</h2>
+        <p>Explore dungeons and defeat monsters here (coming soon)!</p>
+      </div>
+    </main>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
