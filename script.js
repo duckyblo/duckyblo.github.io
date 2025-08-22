@@ -12,8 +12,8 @@ let activePopups=[];
 const jobsContainer=document.getElementById("jobs-container");
 const goldDisplay=document.getElementById("gold");
 const gpsDisplay=document.getElementById("gps");
-function loadGame(){const save=localStorage.getItem("dungeonIncrementalSave");if(save){const data=JSON.parse(save);gold=data.gold||0;data.jobs.forEach((s,i)=>Object.assign(jobs[i],s));}}
-function saveGame(){localStorage.setItem("dungeonIncrementalSave",JSON.stringify({gold,jobs}));}
+function loadGame(){const save=localStorage.getItem("dungeonIncrementalSave5");if(save){const data=JSON.parse(save);gold=data.gold||0;data.jobs.forEach((s,i)=>Object.assign(jobs[i],s));}}
+function saveGame(){localStorage.setItem("dungeonIncrementalSave5",JSON.stringify({gold,jobs}));}
 setInterval(saveGame,10000);
 loadGame();
 function renderJobs(){
@@ -48,3 +48,4 @@ goldDisplay.textContent=`Gold: ${Math.floor(gold)}`;gpsDisplay.textContent=`(+${
 function updateXpBar(job){const xpBar=document.getElementById(`xp-${job.id}`);if(xpBar)xpBar.style.width=`${(job.xp/job.xpNeeded)*100}%`;}
 renderJobs();
 requestAnimationFrame(update);
+
