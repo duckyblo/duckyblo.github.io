@@ -15,7 +15,7 @@ const gpsDisplay = document.getElementById("gps");
 
 // --- Load/Save ---
 function loadGame() {
-  const save = localStorage.getItem("dungeonIncrementalSave2");
+  const save = localStorage.getItem("dungeonIncrementalSave");
   if(save) {
     const data = JSON.parse(save);
     gold = data.gold || 0;
@@ -23,7 +23,7 @@ function loadGame() {
   }
 }
 function saveGame() {
-  localStorage.setItem("dungeonIncrementalSave2", JSON.stringify({ gold, jobs }));
+  localStorage.setItem("dungeonIncrementalSave", JSON.stringify({ gold, jobs }));
 }
 setInterval(saveGame, 10000); // auto-save every 10s
 
@@ -53,6 +53,19 @@ function toggleJob(job) {
   job.running = !job.running;
 }
 
+// --- Popups ---
+function showPopup(text) {
+  const popup = document.createElement('div');
+  popup.className = 'popup';
+  popup.textContent = text;
+  document.body.appendChild(popup);
+  requestAnimationFrame(() => popup.classList.add('show'));
+  setTimeout(() => {
+    popup.classList.remove('show');
+    setTimeout(() => popup.remove(), 500);
+  }, 1500);
+}
+
 // --- Update Loop ---
 function update(time) {
   const delta = time - lastTime;
@@ -75,8 +88,10 @@ function update(time) {
           job.level++;
           job.goldPerRun = Math.round(job.goldPerRun * 1.1);
           job.xpNeeded = Math.round(job.xpNeeded * 1.2);
+          showPopup(`${job.emoji} ${job.name} leveled up to ${job.level}!`);
         }
 
+        showPopup(`+${Math.round(job.goldPerRun)} Gold`);
         updateXpBar(job);
       }
 
@@ -86,6 +101,11 @@ function update(time) {
 
       gps += job.goldPerRun / (job.duration/1000);
     }
+
+    // Update tooltip dynamically
+    const jobDiv = document.getElementById(`progress-${job.id}`).parentElement.parentElement;
+    const tooltip = jobDiv.querySelector('.tooltip');
+    tooltip.textContent = `Gold: ${job.goldPerRun} | XP: ${job.xp}/${job.xpNeeded} | Duration: ${(job.duration/1000).toFixed(1)}s`;
   });
 
   // Update gold counter
