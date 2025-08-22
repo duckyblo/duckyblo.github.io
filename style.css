@@ -34,6 +34,9 @@ max-height: 70vh;
 overflow-y: auto;
 }
 #jobs-panel h2 { text-align: center; margin-bottom: 15px; color: #66ccff; text-shadow: 0 0 4px #66ccff; }
+.route-header { font-weight: bold; margin: 10px 0 5px; }
+.commoner-line { border-top: 2px solid #33ff33; margin-bottom: 8px; }
+.military-line { border-top: 2px solid #ff4444; margin-bottom: 8px; }
 #jobs-container { display: flex; flex-direction: column; gap: 12px; }
 .job {
 border-radius: 10px;
@@ -43,7 +46,7 @@ cursor: pointer;
 transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .job.unlocked { background: linear-gradient(90deg, #262626, #33334d); }
-.job.locked { background: #111122; cursor: default; }
+.job.locked { background: #111122; cursor: default; display: none; }
 .job:hover.unlocked { transform: scale(1.03); box-shadow: 0 0 10px rgba(102,204,255,0.5); }
 .job-title { font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; }
 .job-title span { margin-right: 6px; }
