@@ -1,0 +1,111 @@
+body {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(120deg, #0d0d0d, #1a1a2e);
+  color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+}
+
+#app {
+  background: #1c1c2e;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+  width: 400px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #ffcc66;
+  text-shadow: 0 0 6px #ffcc66;
+}
+
+#gold-display {
+  font-size: 18px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#gps {
+  color: #88ff88;
+  margin-left: 8px;
+}
+
+.job {
+  background: linear-gradient(90deg, #262626, #33334d);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 15px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.job:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(255,204,102,0.3);
+}
+
+.job-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.job-title span {
+  margin-right: 6px;
+}
+
+.progress-container,
+.xp-container {
+  background: #222244;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 14px;
+  margin: 6px 0;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #4cafef, #66ccff);
+  width: 0%;
+  height: 100%;
+  transition: width 0.3s linear;
+}
+
+.xp-fill {
+  background: linear-gradient(90deg, #ffcc33, #ffee88);
+  width: 0%;
+  height: 100%;
+  transition: width 0.3s linear;
+}
+
+/* Tooltip */
+.tooltip {
+  visibility: hidden;
+  background: #111122;
+  color: #fff;
+  text-align: left;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  position: absolute;
+  z-index: 999;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+  box-shadow: 0 0 6px rgba(255,255,255,0.3);
+}
+
+.job:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}

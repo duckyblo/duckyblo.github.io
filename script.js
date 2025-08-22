@@ -1,0 +1,104 @@
+// --- Game State ---
+let jobs = [
+  { id: 1, name: "Farmer", emoji: "🌾", goldPerRun: 10, duration: 2000, xp: 0, xpNeeded: 50, level: 1, running: false, progress: 0 },
+  { id: 2, name: "Miner", emoji: "⛏️", goldPerRun: 25, duration: 4000, xp: 0, xpNeeded: 100, level: 1, running: false, progress: 0 },
+  { id: 3, name: "Blacksmith", emoji: "⚒️", goldPerRun: 60, duration: 6000, xp: 0, xpNeeded: 200, level: 1, running: false, progress: 0 }
+];
+
+let gold = 0;
+let lastTime = performance.now();
+
+// --- DOM Elements ---
+const jobsContainer = document.getElementById("jobs-container");
+const goldDisplay = document.getElementById("gold");
+const gpsDisplay = document.getElementById("gps");
+
+// --- Load/Save ---
+function loadGame() {
+  const save = localStorage.getItem("dungeonIncrementalSave2");
+  if(save) {
+    const data = JSON.parse(save);
+    gold = data.gold || 0;
+    data.jobs.forEach((savedJob, i) => Object.assign(jobs[i], savedJob));
+  }
+}
+function saveGame() {
+  localStorage.setItem("dungeonIncrementalSave2", JSON.stringify({ gold, jobs }));
+}
+setInterval(saveGame, 10000); // auto-save every 10s
+
+loadGame();
+
+// --- Render Jobs ---
+function renderJobs() {
+  jobsContainer.innerHTML = "";
+  jobs.forEach(job => {
+    const jobDiv = document.createElement("div");
+    jobDiv.className = "job";
+
+    jobDiv.innerHTML = `
+      <div class="job-title"><span>${job.emoji}</span> ${job.name} (Lv ${job.level})</div>
+      <div class="progress-container"><div id="progress-${job.id}" class="progress-fill" style="width:${job.progress*100}%"></div></div>
+      <div class="xp-container"><div id="xp-${job.id}" class="xp-fill" style="width:${(job.xp/job.xpNeeded)*100}%"></div></div>
+      <div class="tooltip">Gold: ${job.goldPerRun} | XP: ${job.xp}/${job.xpNeeded} | Duration: ${(job.duration/1000).toFixed(1)}s</div>
+    `;
+
+    jobDiv.addEventListener("click", () => toggleJob(job));
+    jobsContainer.appendChild(jobDiv);
+  });
+}
+
+// --- Toggle Job ---
+function toggleJob(job) {
+  job.running = !job.running;
+}
+
+// --- Update Loop ---
+function update(time) {
+  const delta = time - lastTime;
+  lastTime = time;
+
+  let gps = 0;
+
+  jobs.forEach(job => {
+    if(job.running) {
+      // Update progress
+      job.progress += delta / job.duration;
+      if(job.progress >= 1) {
+        job.progress = 0;
+        gold += Math.round(job.goldPerRun);
+        job.xp += 10;
+
+        // Level up
+        if(job.xp >= job.xpNeeded) {
+          job.xp = 0;
+          job.level++;
+          job.goldPerRun = Math.round(job.goldPerRun * 1.1);
+          job.xpNeeded = Math.round(job.xpNeeded * 1.2);
+        }
+
+        updateXpBar(job);
+      }
+
+      // Update progress bar
+      const progressBar = document.getElementById(`progress-${job.id}`);
+      if(progressBar) progressBar.style.width = `${job.progress*100}%`;
+
+      gps += job.goldPerRun / (job.duration/1000);
+    }
+  });
+
+  // Update gold counter
+  goldDisplay.textContent = `Gold: ${Math.floor(gold)}`;
+  gpsDisplay.textContent = `(+${gps.toFixed(1)}/s)`;
+
+  requestAnimationFrame(update);
+}
+
+function updateXpBar(job) {
+  const xpBar = document.getElementById(`xp-${job.id}`);
+  if(xpBar) xpBar.style.width = `${(job.xp/job.xpNeeded)*100}%`;
+}
+
+renderJobs();
+requestAnimationFrame(update);
