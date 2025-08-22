@@ -1,48 +1,72 @@
+/* --- Global --- */
 body {
   font-family: 'Arial', sans-serif;
   background: linear-gradient(120deg, #0d0d0d, #1a1a2e);
   color: #f0f0f0;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
   margin: 0;
-  padding: 20px;
+  padding: 0;
 }
 
 #app {
-  background: #1c1c2e;
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.7);
-  width: 600px;
-  max-width: 90vw;
 }
 
-h1 {
-  text-align: center;
+/* --- Header --- */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
+}
+
+header h1 {
+  font-size: 2rem;
   color: #ffcc66;
   text-shadow: 0 0 6px #ffcc66;
 }
 
 #gold-display {
-  font-size: 18px;
-  text-align: center;
-  margin-bottom: 20px;
+  font-size: 1.2rem;
 }
 
 #gps {
   color: #88ff88;
-  margin-left: 8px;
+  margin-left: 10px;
+}
+
+/* --- Main Panels --- */
+main {
+  display: flex;
+  gap: 20px;
+}
+
+/* Jobs Panel */
+#jobs-panel {
+  flex: 1;
+  background: #1c1c2e;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+#jobs-panel h2 {
+  text-align: center;
+  margin-bottom: 15px;
+  color: #66ccff;
+  text-shadow: 0 0 4px #66ccff;
 }
 
 #jobs-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
+/* Job Cards */
 .job {
   background: linear-gradient(90deg, #262626, #33334d);
   border-radius: 10px;
@@ -53,8 +77,8 @@ h1 {
 }
 
 .job:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(255,204,102,0.3);
+  transform: scale(1.03);
+  box-shadow: 0 0 10px rgba(102,204,255,0.5);
 }
 
 .job-title {
@@ -68,6 +92,7 @@ h1 {
   margin-right: 6px;
 }
 
+/* Bars */
 .progress-container,
 .xp-container {
   background: #222244;
@@ -116,6 +141,21 @@ h1 {
   opacity: 1;
 }
 
+/* Dungeon Panel */
+#dungeon-panel {
+  flex: 2;
+  background: #1c1c2e;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  text-align: center;
+}
+
 /* Popups */
 .popup {
   position: fixed;
@@ -134,4 +174,11 @@ h1 {
 .popup.show {
   opacity: 1;
   transform: translateX(-50%) translateY(-20px);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  main {
+    flex-direction: column;
+  }
 }
