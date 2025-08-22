@@ -25,7 +25,7 @@ function loadGame() {
 function saveGame() {
   localStorage.setItem("dungeonIncrementalSave", JSON.stringify({ gold, jobs }));
 }
-setInterval(saveGame, 10000); // auto-save every 10s
+setInterval(saveGame, 10000);
 
 loadGame();
 
@@ -75,14 +75,12 @@ function update(time) {
 
   jobs.forEach(job => {
     if(job.running) {
-      // Update progress
       job.progress += delta / job.duration;
       if(job.progress >= 1) {
         job.progress = 0;
         gold += Math.round(job.goldPerRun);
         job.xp += 10;
 
-        // Level up
         if(job.xp >= job.xpNeeded) {
           job.xp = 0;
           job.level++;
@@ -95,7 +93,6 @@ function update(time) {
         updateXpBar(job);
       }
 
-      // Update progress bar
       const progressBar = document.getElementById(`progress-${job.id}`);
       if(progressBar) progressBar.style.width = `${job.progress*100}%`;
 
@@ -108,7 +105,6 @@ function update(time) {
     tooltip.textContent = `Gold: ${job.goldPerRun} | XP: ${job.xp}/${job.xpNeeded} | Duration: ${(job.duration/1000).toFixed(1)}s`;
   });
 
-  // Update gold counter
   goldDisplay.textContent = `Gold: ${Math.floor(gold)}`;
   gpsDisplay.textContent = `(+${gps.toFixed(1)}/s)`;
 
