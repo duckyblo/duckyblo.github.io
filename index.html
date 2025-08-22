@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Nightforge — Dungeon Roguelite</title>
+  <title>Dungeon game</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -12,8 +12,8 @@
       <div class="brand">
         <div class="logo">⚒️</div>
         <div>
-          <h1>Nightforge</h1>
-          <small>Dark dungeons • ☾</small>
+          <h1>Dungeon Game</h1>
+          <small>jajjajajaja</small>
         </div>
       </div>
 
@@ -37,7 +37,11 @@
           <span>🔧 <b id="skillpoints">0</b></span>
         </div>
 
-        <!-- removed reset from sidebar (moved to Stats) -->
+        <div class="equips-compact">
+          <div class="equip-mini" title="Weapon">⚔️ <span id="mini-eq-weapon">—</span></div>
+          <div class="equip-mini" title="Armor">🛡️ <span id="mini-eq-armor">—</span></div>
+          <div class="equip-mini" title="Accessory">💍 <span id="mini-eq-accessory">—</span></div>
+        </div>
       </div>
 
       <div class="dungeon-select-side">
@@ -75,7 +79,7 @@
           </div>
 
           <div class="combat-log" id="combatLog">
-            <div class="log-line muted">Welcome to Nightforge — press <b>Enter Dungeon</b> to begin.</div>
+            <div class="log-line muted">Welcome — press <b>Enter Dungeon</b> to begin.</div>
           </div>
 
           <div class="combatant enemy" id="enemyBox" style="display:none;">
@@ -93,7 +97,10 @@
             <div class="move-name" id="moveName0">—</div>
             <div class="move-desc" id="moveDesc0">Empty</div>
             <div class="move-actions">
-              <button class="btn small use-move" data-slot="0">Use</button>
+              <div class="cd-wrap">
+                <button class="btn small use-move" data-slot="0">Use</button>
+                <div class="cd-overlay" data-slot="0" style="display:none;"><span class="cd-num">0</span></div>
+              </div>
               <button class="btn tiny swap-move" data-slot="0">Swap</button>
             </div>
           </div>
@@ -101,7 +108,10 @@
             <div class="move-name" id="moveName1">—</div>
             <div class="move-desc" id="moveDesc1">Empty</div>
             <div class="move-actions">
-              <button class="btn small use-move" data-slot="1">Use</button>
+              <div class="cd-wrap">
+                <button class="btn small use-move" data-slot="1">Use</button>
+                <div class="cd-overlay" data-slot="1" style="display:none;"><span class="cd-num">0</span></div>
+              </div>
               <button class="btn tiny swap-move" data-slot="1">Swap</button>
             </div>
           </div>
@@ -109,7 +119,10 @@
             <div class="move-name" id="moveName2">—</div>
             <div class="move-desc" id="moveDesc2">Empty</div>
             <div class="move-actions">
-              <button class="btn small use-move" data-slot="2">Use</button>
+              <div class="cd-wrap">
+                <button class="btn small use-move" data-slot="2">Use</button>
+                <div class="cd-overlay" data-slot="2" style="display:none;"><span class="cd-num">0</span></div>
+              </div>
               <button class="btn tiny swap-move" data-slot="2">Swap</button>
             </div>
           </div>
@@ -117,7 +130,10 @@
             <div class="move-name" id="moveName3">—</div>
             <div class="move-desc" id="moveDesc3">Empty</div>
             <div class="move-actions">
-              <button class="btn small use-move" data-slot="3">Use</button>
+              <div class="cd-wrap">
+                <button class="btn small use-move" data-slot="3">Use</button>
+                <div class="cd-overlay" data-slot="3" style="display:none;"><span class="cd-num">0</span></div>
+              </div>
               <button class="btn tiny swap-move" data-slot="3">Swap</button>
             </div>
           </div>
@@ -128,8 +144,17 @@
       <section id="tab-inventory" class="panel">
         <header class="panel-header">
           <h2>Inventory 🎒</h2>
-          <div class="panel-sub">Click an item to view details / sell</div>
+          <div class="panel-sub">Click an item to view details / sell / equip</div>
         </header>
+
+        <div class="inventory-top">
+          <div class="equipment-display">
+            <div class="equip-slot big" id="equip-weapon">⚔️ <div class="equip-name" id="eq-weapon-name">None</div></div>
+            <div class="equip-slot big" id="equip-armor">🛡️ <div class="equip-name" id="eq-armor-name">None</div></div>
+            <div class="equip-slot big" id="equip-accessory">💍 <div class="equip-name" id="eq-accessory-name">None</div></div>
+          </div>
+          <div class="inventory-actions muted">Tip: Equip to apply stat bonuses instantly.</div>
+        </div>
 
         <div id="inventoryGrid" class="inventory-grid"></div>
 
@@ -138,8 +163,10 @@
           <p id="detailDesc"></p>
           <ul id="detailStats"></ul>
           <div class="detail-actions">
+            <div class="item-values muted">Buy: <span id="detailBuy">—</span> • Sell: <span id="detailSell">—</span></div>
             <button id="sellOne" class="btn">Sell 1</button>
             <button id="useItem" class="btn subtle">Use</button>
+            <button id="equipItem" class="btn">Equip</button>
           </div>
         </div>
       </section>
