@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm Idle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h1 {
+            color: #4a5568;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            color: #4a5568;
+            font-size: 1.2em;
+        }
+
+        .farm-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .plot {
+            width: 90px;
+            height: 90px;
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            border: 3px solid transparent;
+        }
+
+        .plot.locked {
+            background: #e2e8f0;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .plot.purchasable {
+            background: repeating-linear-gradient(
+                45deg,
+                #cbd5e0,
+                #cbd5e0 10px,
+                #e2e8f0 10px,
+                #e2e8f0 20px
+            );
+            border: 3px dashed #667eea;
+            animation: pulse 2s infinite;
+        }
+
+        .plot.purchasable:hover {
+            transform: scale(1.05);
+            border-color: #4c51bf;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        .plot.empty {
+            background: #8b6f47;
+            border: 2px solid #6b5435;
+        }
+
+        .plot.empty:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .plot.watered {
+            background: #5d4a35;
+            border: 2px solid #4a3828;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .plot.growing {
+            background: #5d4a35;
+            border: 2px solid #4a3828;
+        }
+
+        .plot.ready {
+            background: #5d4a35;
+            border: 2px solid #4a3828;
+            animation: glow 1.5s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.6); }
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            right: 5px;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #48bb78, #38a169);
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .water-indicator {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.5em;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+        }
+
+        .tooltip {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            max-width: 250px;
+        }
+
+        .tooltip-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #ffd700;
+            font-size: 1.1em;
+        }
+
+        .tooltip-info {
+            line-height: 1.6;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-plant {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        .btn-water {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+        }
+
+        .btn-harvest {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #4a5568;
+        }
+
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 24px;
+            animation: float-up 1s ease-out forwards;
+            z-index: 999;
+        }
+
+        @keyframes float-up {
+            to {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+        }
+
+        .cost-badge {
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffd700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.35em;
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: bold;
+        }
+
+        .crop-icon {
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🌾 Farm Idle</h1>
+            <div class="stats">
+                <div class="stat">💰 <span id="money">50</span></div>
+                <div class="stat">📦 <span id="plots">1</span>/25</div>
+            </div>
+        </div>
+
+        <div class="farm-grid" id="farm-grid"></div>
+
+        <div class="controls">
+            <button class="btn btn-plant" onclick="selectAction('plant')">🌱 Plant ($10)</button>
+            <button class="btn btn-water" onclick="selectAction('water')">💧 Water ($5)</button>
+            <button class="btn btn-harvest" onclick="selectAction('harvest')">✂️ Harvest</button>
+        </div>
+    </div>
+
+    <script>
+        const GRID_SIZE = 5;
+        const PLOT_COST = 30;
+        const PLANT_COST = 10;
+        const WATER_COST = 5;
+        
+        const CROPS = {
+            wheat: { icon: '🌾', growTime: 10000, value: 25, baseChance: 0.6, waterBonus: 0.2 },
+            carrot: { icon: '🥕', growTime: 15000, value: 40, baseChance: 0.7, waterBonus: 0.15 },
+            corn: { icon: '🌽', growTime: 20000, value: 60, baseChance: 0.65, waterBonus: 0.25 },
+        };
+
+        let gameState = {
+            money: 50,
+            selectedAction: null,
+            grid: [],
+            ownedPlots: new Set(['2,2']) // Start with center plot
+        };
+
+        // Initialize grid
+        for (let row = 0; row < GRID_SIZE; row++) {
+            gameState.grid[row] = [];
+            for (let col = 0; col < GRID_SIZE; col++) {
+                gameState.grid[row][col] = {
+                    state: 'locked',
+                    crop: null,
+                    plantTime: null,
+                    watered: false
+                };
+            }
+        }
+        gameState.grid[2][2].state = 'empty';
+
+        function renderGrid() {
+            const gridEl = document.getElementById('farm-grid');
+            gridEl.innerHTML = '';
+
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    const plot = gameState.grid[row][col];
+                    const plotEl = document.createElement('div');
+                    plotEl.className = `plot ${plot.state}`;
+                    plotEl.dataset.row = row;
+                    plotEl.dataset.col = col;
+
+                    if (plot.state === 'purchasable') {
+                        const costBadge = document.createElement('div');
+                        costBadge.className = 'cost-badge';
+                        costBadge.textContent = `$${PLOT_COST}`;
+                        plotEl.appendChild(costBadge);
+                    }
+
+                    if (plot.state === 'growing' || plot.state === 'ready') {
+                        const cropIcon = document.createElement('span');
+                        cropIcon.className = 'crop-icon';
+                        cropIcon.textContent = CROPS[plot.crop].icon;
+                        plotEl.appendChild(cropIcon);
+
+                        if (plot.watered) {
+                            const waterIcon = document.createElement('div');
+                            waterIcon.className = 'water-indicator';
+                            waterIcon.textContent = '💧';
+                            plotEl.appendChild(waterIcon);
+                        }
+
+                        if (plot.state === 'growing') {
+                            const progressBar = document.createElement('div');
+                            progressBar.className = 'progress-bar';
+                            const progressFill = document.createElement('div');
+                            progressFill.className = 'progress-fill';
+                            progressBar.appendChild(progressFill);
+                            plotEl.appendChild(progressBar);
+                        }
+                    } else if (plot.watered && plot.state === 'empty') {
+                        const waterIcon = document.createElement('div');
+                        waterIcon.className = 'water-indicator';
+                        waterIcon.textContent = '💧';
+                        plotEl.appendChild(waterIcon);
+                    }
+
+                    plotEl.addEventListener('click', () => handlePlotClick(row, col));
+                    plotEl.addEventListener('mouseenter', (e) => showTooltip(e, row, col));
+                    plotEl.addEventListener('mouseleave', hideTooltip);
+                    plotEl.addEventListener('mousemove', (e) => moveTooltip(e));
+
+                    gridEl.appendChild(plotEl);
+                }
+            }
+
+            updateStats();
+            updatePurchasablePlots();
+        }
+
+        function updatePurchasablePlots() {
+            const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+            
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    const key = `${row},${col}`;
+                    if (!gameState.ownedPlots.has(key) && gameState.grid[row][col].state === 'locked') {
+                        // Check if adjacent to owned plot
+                        let isAdjacent = false;
+                        for (const [dr, dc] of directions) {
+                            const newRow = row + dr;
+                            const newCol = col + dc;
+                            if (newRow >= 0 && newRow < GRID_SIZE && newCol >= 0 && newCol < GRID_SIZE) {
+                                if (gameState.ownedPlots.has(`${newRow},${newCol}`)) {
+                                    isAdjacent = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (isAdjacent) {
+                            gameState.grid[row][col].state = 'purchasable';
+                        }
+                    }
+                }
+            }
+        }
+
+        function handlePlotClick(row, col) {
+            const plot = gameState.grid[row][col];
+
+            if (plot.state === 'purchasable') {
+                if (gameState.money >= PLOT_COST) {
+                    gameState.money -= PLOT_COST;
+                    gameState.ownedPlots.add(`${row},${col}`);
+                    plot.state = 'empty';
+                    createParticle('✨', row, col);
+                    renderGrid();
+                }
+                return;
+            }
+
+            if (!gameState.selectedAction) return;
+
+            if (gameState.selectedAction === 'plant' && plot.state === 'empty') {
+                if (gameState.money >= PLANT_COST) {
+                    gameState.money -= PLANT_COST;
+                    plot.state = 'growing';
+                    plot.crop = 'wheat'; // Default crop for now
+                    plot.plantTime = Date.now();
+                    createParticle('🌱', row, col);
+                    startGrowth(row, col);
+                    renderGrid();
+                }
+            } else if (gameState.selectedAction === 'water' && (plot.state === 'empty' || plot.state === 'growing')) {
+                if (gameState.money >= WATER_COST && !plot.watered) {
+                    gameState.money -= WATER_COST;
+                    plot.watered = true;
+                    createParticle('💧', row, col);
+                    renderGrid();
+                }
+            } else if (gameState.selectedAction === 'harvest' && plot.state === 'ready') {
+                harvestPlot(row, col);
+            }
+        }
+
+        function startGrowth(row, col) {
+            const plot = gameState.grid[row][col];
+            const crop = CROPS[plot.crop];
+            
+            const interval = setInterval(() => {
+                if (plot.state !== 'growing') {
+                    clearInterval(interval);
+                    return;
+                }
+
+                const elapsed = Date.now() - plot.plantTime;
+                const progress = Math.min(elapsed / crop.growTime, 1);
+
+                const plotEl = document.querySelector(`[data-row="${row}"][data-col="${col}"] .progress-fill`);
+                if (plotEl) {
+                    plotEl.style.width = `${progress * 100}%`;
+                }
+
+                if (progress >= 1) {
+                    clearInterval(interval);
+                    // Check survival
+                    const survivalChance = crop.baseChance + (plot.watered ? crop.waterBonus : 0);
+                    if (Math.random() < survivalChance) {
+                        plot.state = 'ready';
+                        createParticle('✨', row, col);
+                    } else {
+                        plot.state = 'empty';
+                        plot.crop = null;
+                        plot.plantTime = null;
+                        plot.watered = false;
+                        createParticle('💀', row, col);
+                    }
+                    renderGrid();
+                }
+            }, 100);
+        }
+
+        function harvestPlot(row, col) {
+            const plot = gameState.grid[row][col];
+            const crop = CROPS[plot.crop];
+            
+            gameState.money += crop.value;
+            plot.state = 'empty';
+            plot.crop = null;
+            plot.plantTime = null;
+            plot.watered = false;
+            
+            createParticle('💰', row, col);
+            createParticle(`+$${crop.value}`, row, col);
+            renderGrid();
+        }
+
+        function selectAction(action) {
+            gameState.selectedAction = gameState.selectedAction === action ? null : action;
+            
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.style.opacity = '1';
+            });
+            
+            if (gameState.selectedAction) {
+                event.target.style.opacity = '0.7';
+            }
+        }
+
+        function showTooltip(e, row, col) {
+            const plot = gameState.grid[row][col];
+            if (plot.state === 'locked' || plot.state === 'purchasable') return;
+
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            tooltip.id = 'tooltip';
+
+            let content = '';
+            
+            if (plot.state === 'growing' || plot.state === 'ready') {
+                const crop = CROPS[plot.crop];
+                const elapsed = Date.now() - plot.plantTime;
+                const remaining = Math.max(0, crop.growTime - elapsed);
+                const survivalChance = crop.baseChance + (plot.watered ? crop.waterBonus : 0);
+                
+                content = `
+                    <div class="tooltip-title">${crop.icon} ${plot.crop.charAt(0).toUpperCase() + plot.crop.slice(1)}</div>
+                    <div class="tooltip-info">
+                        ${plot.state === 'growing' ? `⏱️ Time left: ${Math.ceil(remaining / 1000)}s` : '✅ Ready to harvest!'}
+                        <br>💰 Value: $${crop.value}
+                        <br>🎲 Survival: ${Math.round(survivalChance * 100)}%
+                        <br>${plot.watered ? '💧 Watered (+' + Math.round(crop.waterBonus * 100) + '%)' : '🏜️ Dry'}
+                    </div>
+                `;
+            } else if (plot.state === 'empty') {
+                content = `
+                    <div class="tooltip-title">Empty Plot</div>
+                    <div class="tooltip-info">
+                        ${plot.watered ? '💧 Watered soil - ready to plant!' : '🏜️ Dry soil - water for better survival'}
+                    </div>
+                `;
+            }
+
+            tooltip.innerHTML = content;
+            tooltip.style.left = e.pageX + 15 + 'px';
+            tooltip.style.top = e.pageY + 15 + 'px';
+            document.body.appendChild(tooltip);
+        }
+
+        function moveTooltip(e) {
+            const tooltip = document.getElementById('tooltip');
+            if (tooltip) {
+                tooltip.style.left = e.pageX + 15 + 'px';
+                tooltip.style.top = e.pageY + 15 + 'px';
+            }
+        }
+
+        function hideTooltip() {
+            const tooltip = document.getElementById('tooltip');
+            if (tooltip) {
+                tooltip.remove();
+            }
+        }
+
+        function createParticle(emoji, row, col) {
+            const plotEl = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            const rect = plotEl.getBoundingClientRect();
+            
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = emoji;
+            particle.style.left = rect.left + rect.width / 2 + 'px';
+            particle.style.top = rect.top + rect.height / 2 + 'px';
+            
+            document.body.appendChild(particle);
+            
+            setTimeout(() => particle.remove(), 1000);
+        }
+
+        function updateStats() {
+            document.getElementById('money').textContent = gameState.money;
+            document.getElementById('plots').textContent = gameState.ownedPlots.size;
+        }
+
+        // Initialize
+        renderGrid();
+    </script>
+</body>
+</html>
